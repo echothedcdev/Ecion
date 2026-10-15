@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECION — Your Video Universe</title>
+<meta name="theme-color" content="#101014">
+<meta name="description" content="ECION is your private video-sharing community.">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #101014;
+  --panel: #19191f;
+  --card: #202027;
+  --text: #f6f4fa;
+  --muted: #a4a1b0;
+  --red: #ff315b;
+  --purple: #9b5cff;
+  --border: #30303a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+button:focus-visible, input:focus-visible,
+textarea:focus-visible, a:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 3px;
+}
+
+button:disabled { opacity: .55; cursor: wait; }
+
+header {
+  height: 70px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 22px;
+  background: #121216;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.logo {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  font-weight: 1000;
+  color: white;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--red), var(--purple));
+  box-shadow: 0 0 20px #9b5cff33;
+}
+
+.search {
+  flex: 1;
+  max-width: 550px;
+  margin: auto;
+}
+
+input, textarea, select {
+  width: 100%;
+  color: var(--text);
+  background: #202027;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--purple);
+  outline: none;
+}
+
+button, .button {
+  border: 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  color: white;
+  background: linear-gradient(110deg, var(--red), var(--purple));
+  font-weight: 750;
+}
+
+button.secondary {
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+button:hover { filter: brightness(1.12); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+}
+
+aside {
+  position: sticky;
+  top: 70px;
+  height: calc(100vh - 70px);
+  padding: 20px 12px;
+  border-right: 1px solid var(--border);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav button {
+  background: transparent;
+  text-align: left;
+  border: 1px solid transparent;
+}
+
+.nav button.active,
+.nav button:hover {
+  background: var(--panel);
+  border-color: var(--border);
+}
+
+main { min-width: 0; padding: 28px; }
+
+h1 { margin-top: 0; font-size: 30px; }
+h2 { font-size: 20px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+.hero {
+  padding: 28px;
+  margin-bottom: 28px;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 90% 10%, #9b5cff38, transparent 50%),
+    radial-gradient(ellipse at 10% 100%, #ff315b27, transparent 55%),
+    var(--panel);
+  border: 1px solid var(--border);
+}
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 43px);
+  margin-bottom: 10px;
+}
+
+.gradient {
+  background: linear-gradient(90deg, var(--red), var(--purple));
+  background-clip: text;
+  color: transparent;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.video-card {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  background: #09090d;
+  object-fit: cover;
+}
+
+.preview.short {
+  aspect-ratio: 9 / 13;
+  max-height: 390px;
+  object-fit: contain;
+}
+
+.card-body { padding: 14px; }
+.card-body h3 { margin: 0 0 8px; overflow-wrap: anywhere; }
+.card-body p { font-size: 13px; color: var(--muted); }
+.card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.card-actions button { padding: 8px 10px; font-size: 12px; }
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 0; }
+
+.panel {
+  padding: 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+form { display: grid; gap: 13px; }
+form label { display: grid; gap: 7px; font-size: 14px; }
+
+.auth-wrap {
+  max-width: 440px;
+  margin: 35px auto;
+}
+
+.auth-wrap .brand {
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.hidden { display: none !important; }
+.status { margin: 14px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.status.error { color: #ff718a; }
+.status.success { color: #75e6a4; }
+
+footer {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  header { padding: 10px; height: auto; flex-wrap: wrap; }
+  .brand { font-size: 19px; }
+  .search { order: 3; flex-basis: 100%; max-width: none; }
+  .layout { display: block; }
+  aside { position: static; height: auto; padding: 8px; border-right: 0; }
+  .nav { flex-direction: row; overflow-x: auto; }
+  .nav button { white-space: nowrap; }
+  main { padding: 15px; }
+  .grid { grid-template-columns: 1fr; }
+  .hero { padding: 20px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">E</div>
+    ECION
+  </div>
+
+  <div class="search">
+    <input id="search" type="search" placeholder="Search videos and creators...">
+  </div>
+
+  <button id="accountButton" onclick="showAccount()">Sign in</button>
+</header>
+
+<div id="authView" class="auth-wrap hidden">
+  <div class="brand">
+    <div class="logo">E</div> ECION
+  </div>
+
+  <div class="panel">
+    <h1 id="authTitle">Welcome back</h1>
+    <p class="muted">Your video universe awaits.</p>
+
+    <form id="authForm">
+      <label id="usernameLabel" class="hidden">
+        Username
+        <input id="username" maxlength="24" autocomplete="username">
+      </label>
+
+      <label id="inviteLabel" class="hidden">
+        Invite code
+        <input id="inviteCode" autocomplete="off">
+      </label>
+
+      <label>
+        Email
+        <input id="email" type="email" required autocomplete="email">
+      </label>
+
+      <label>
+        Password
+        <input id="password" type="password" required minlength="8"
+          autocomplete="current-password">
+      </label>
+
+      <button id="authSubmit" type="submit">Sign in</button>
+    </form>
+
+    <p id="authStatus" class="status" role="status"></p>
+
+    <button id="authToggle" class="secondary" style="width:100%"
+      onclick="toggleAuthMode()">Create an account</button>
+
+    <button class="secondary" style="width:100%;margin-top:10px"
+      onclick="showHome()">Back to home</button>
+  </div>
+</div>
+
+<div id="appView" class="layout">
+  <aside>
+    <nav class="nav">
+      <button class="active" data-page="home" onclick="navigate('home')">🏠 Home</button>
+      <button data-page="shorts" onclick="navigate('shorts')">📱 Shorts</button>
+      <button data-page="subscriptions" onclick="navigate('subscriptions')">🔔 Subscriptions</button>
+      <button data-page="channel" onclick="navigate('channel')">👤 My channel</button>
+      <button data-page="upload" onclick="navigate('upload')">📤 Upload video</button>
+      <button data-page="settings" onclick="navigate('settings')">⚙️ Settings</button>
+    </nav>
+
+    <p class="muted small" style="margin:25px 8px">
+      ECION<br>Your community. Your videos.
+    </p>
+  </aside>
+
+  <main>
+    <section id="homePage">
+      <div class="hero">
+        <p class="gradient"><b>YOUR VIDEO UNIVERSE</b></p>
+        <h1>Welcome to <span class="gradient">ECION.</span></h1>
+        <p class="muted">Discover videos, watch Shorts, and share your creativity.</p>
+        <button onclick="navigate('upload')">＋ Upload a video</button>
+      </div>
+
+      <div class="row" style="align-items:center;margin-bottom:18px">
+        <div>
+          <h2 style="margin:0">Explore videos</h2>
+          <p class="muted small">Videos from your community</p>
+        </div>
+        <button class="secondary" onclick="loadVideos()">↻ Refresh</button>
+      </div>
+
+      <div id="homeGrid" class="grid"></div>
+      <p id="homeStatus" class="status muted">Loading videos...</p>
+    </section>
+
+    <section id="shortsPage" class="hidden">
+      <h1><span class="gradient">ECION</span> Shorts</h1>
+      <p class="muted">Quick videos from your community.</p>
+      <div id="shortsGrid" class="grid"></div>
+      <p id="shortsStatus" class="status muted"></p>
+    </section>
+
+    <section id="subscriptionsPage" class="hidden">
+      <h1>Subscriptions</h1>
+      <p class="muted">Videos from creators you follow.</p>
+      <div id="subscriptionsGrid" class="grid"></div>
+      <p id="subscriptionsStatus" class="status muted"></p>
+    </section>
+
+    <section id="channelPage" class="hidden">
+      <h1>My channel</h1>
+      <div class="panel">
+        <h2 id="channelName">Your channel</h2>
+        <p id="channelEmail" class="muted"></p>
+        <button class="secondary" onclick="loadVideos()">Refresh uploads</button>
+      </div>
+      <div id="channelGrid" class="grid"></div>
+      <p id="channelStatus" class="status muted"></p>
+    </section>
+
+    <section id="uploadPage" class="hidden">
+      <h1>Upload a video</h1>
+      <div class="panel">
+        <p class="muted">Sign in first. Video files are stored in ECION's configured Supabase Storage bucket.</p>
+
+        <form id="uploadForm">
+          <label>
+            Video title
+            <input id="videoTitle" maxlength="120" required>
+          </label>
+
+          <label>
+            Description
+            <textarea id="videoDescription" maxlength="3000" rows="4"></textarea>
+          </label>
+
+          <label>
+            Video type
+            <select id="videoType">
+              <option value="regular">Regular video</option>
+              <option value="short">Short</option>
+            </select>
+          </label>
+
+          <label>
+            Upload a video file
+            <input id="videoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
+          </label>
+
+          <p class="muted small">Or provide a YouTube link instead. Only use videos you have permission to share.</p>
+
+          <label>
+            YouTube URL (optional)
+            <input id="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=...">
+          </label>
+
+          <button type="submit">Publish video</button>
+        </form>
+        <p id="uploadStatus" class="status" role="status"></p>
+      </div>
+    </section>
+
+    <section id="settingsPage" class="hidden">
+      <h1>Settings</h1>
+      <div class="panel">
+        <h2>Account</h2>
+        <p id="settingsEmail" class="muted">Not signed in</p>
+        <button onclick="showAccount()">Sign in / Account</button>
+        <button class="secondary" onclick="signOut()">Sign out</button>
+      </div>
+      <div class="panel">
+        <h2>Appearance</h2>
+        <p class="muted">ECION currently uses its signature dark theme.</p>
+      </div>
+      <div class="panel">
+        <h2>Privacy and safety</h2>
+        <p class="muted">Don't upload private information or videos you don't have permission to share. Report unsafe content to the site administrator.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>ECION © 2026 · Made for your community</footer>
+
+<script>
+const SUPABASE_URL = "https://nihnqhfgseifvncjxxej.supabase.co";
+const SUPABASE_KEY = "sb_publishable_22ZH3OKQ_C6tApeHx7vF-A_XHJeKoaE";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let videos = [];
+let authMode = "login";
+let currentPage = "home";
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[c]);
+}
+
+function message(id, text, type = "") {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = "status " + type;
+}
+
+function setBusy(formId, busy) {
+  $(formId).querySelectorAll("button[type=submit]").forEach(b => {
+    b.disabled = busy;
+  });
+}
+
+function showHome() {
+  $("authView").classList.add("hidden");
+  $("appView").classList.remove("hidden");
+  loadVideos();
+}
+
+function showAccount() {
+  $("appView").classList.add("hidden");
+  $("authView").classList.remove("hidden");
+  $("email").focus();
+}
+
+function toggleAuthMode() {
+  authMode = authMode === "login" ? "signup" : "login";
+  const signup = authMode === "signup";
+
+  $("authTitle").textContent = signup ? "Join ECION" : "Welcome back";
+  $("authSubmit").textContent = signup ? "Create account" : "Sign in";
+  $("authToggle").textContent = signup ? "Already have an account? Sign in" : "Create an account";
+  $("usernameLabel").classList.toggle("hidden", !signup);
+  $("inviteLabel").classList.toggle("hidden", !signup);
+  $("username").required = signup;
+  $("inviteCode").required = signup;
+  $("password").autocomplete = signup ? "new-password" : "current-password";
+  message("authStatus", "");
+}
+
+async function handleAuth(event) {
+  event.preventDefault();
+  setBusy("authForm", true);
+  message("authStatus", "Working...");
+
+  try {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    let result;
+
+    if (authMode === "signup") {
+      const username = $("username").value.trim();
+      const inviteCode = $("inviteCode").value.trim();
+
+      if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
+        throw new Error("Username must be 3–24 characters: letters, numbers, or underscores.");
+      }
+
+      if (!inviteCode) throw new Error("Enter your invite code.");
+
+      // Invite verification is a server-side database function.
+      const check = await db.rpc("verify_invite", { invite_code: inviteCode });
+      if (check.error) throw check.error;
+      if (check.data !== true) throw new Error("Invalid or inactive invite code.");
+
+      result = await db.auth.signUp({
+        email,
+        password,
+        options: { data: { username } }
+      });
+
+      if (result.error) throw result.error;
+
+      if (!result.data.session) {
+        message("authStatus",
+          "Account created! Check your email to confirm your account, then sign in.",
+          "success");
+        return;
+      }
+    } else {
+      result = await db.auth.signInWithPassword({ email, password });
+      if (result.error) throw result.error;
+    }
+
+    await refreshSession();
+    showHome();
+  } catch (error) {
+    message("authStatus", error.message || "Authentication failed.", "error");
+  } finally {
+    setBusy("authForm", false);
+  }
+}
+
+async function refreshSession() {
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+  currentUser = data.session?.user || null;
+  currentProfile = null;
+
+  if (currentUser) {
+    const result = await db.from("profiles")
+      .select("id, username, is_admin")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+    if (!result.error) currentProfile = result.data;
+  }
+
+  $("accountButton").textContent = currentUser
+    ? (currentProfile?.username || "My account")
+    : "Sign in";
+
+  $("settingsEmail").textContent = currentUser?.email || "Not signed in";
+  $("channelName").textContent = currentProfile?.username || "Your channel";
+  $("channelEmail").textContent = currentUser?.email || "";
+
+  return currentUser;
+}
+
+async function signOut() {
+  const { error } = await db.auth.signOut();
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await refreshSession();
+  showHome();
+}
+
+function navigate(page) {
+  currentPage = page;
+
+  const pages = ["home", "shorts", "subscriptions", "channel", "upload", "settings"];
+
+  pages.forEach(p => {
+    $(p + "Page").classList.toggle("hidden", p !== page);
+  });
+
+  document.querySelectorAll("[data-page]").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+
+  if (page === "subscriptions") loadSubscriptions();
+  if (page === "channel") loadChannel();
+  if (page === "shorts") renderShorts();
+  if (page === "upload" && !currentUser) {
+    message("uploadStatus", "Sign in to upload videos.");
+  }
+}
+
+function youtubeId(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1);
+    if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(u.hostname)) {
+      if (u.pathname === "/watch") return u.searchParams.get("v");
+      if (u.pathname.startsWith("/embed/")) return u.pathname.split("/")[2];
+      if (u.pathname.startsWith("/shorts/")) return u.pathname.split("/")[2];
+    }
+  } catch {}
+  return null;
+}
+
+function videoMarkup(video, shortMode = false) {
+  const title = escapeHTML(video.title);
+  const username = escapeHTML(video.profiles?.username || "Creator");
+  const description = escapeHTML(video.description || "");
+  const isYouTube = video.youtube_url && youtubeId(video.youtube_url);
+  const embedId = isYouTube ? youtubeId(video.youtube_url) : null;
+
+  let media;
+
+  if (embedId) {
+    media = `<iframe class="preview ${shortMode ? "short" : ""}"
+      src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(embedId)}"
+      title="${title}" loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen></iframe>`;
+  } else if (video.video_url) {
+    media = `<video class="preview ${shortMode ? "short" : ""}"
+      src="${escapeHTML(video.video_url)}" controls preload="metadata"
+      playsinline></video>`;
+  } else {
+    media = `<div class="preview ${shortMode ? "short" : ""}"
+      style="display:grid;place-items:center;color:#a4a1b0">▶ ECION</div>`;
+  }
+
+  return `
+    <article class="video-card">
+      ${media}
+      <div class="card-body">
+        <h3>${title}</h3>
+        <p>By ${username}</p>
+        <p>${description}</p>
+        <div class="card-actions">
+          <button class="secondary" onclick="likeVideo('${video.id}')">❤️ Like</button>
+          <button class="secondary" onclick="commentOnVideo('${video.id}')">💬 Comment</button>
+          <button class="secondary" onclick="subscribeTo('${video.user_id}')">🔔 Subscribe</button>
+        </div>
+        <p id="likes-${video.id}" class="small muted"></p>
+        <div id="comments-${video.id}"></div>
+      </div>
+    </article>`;
+}
+
+function renderVideos(list, gridId, statusId, shortMode = false) {
+  $(gridId).innerHTML = list.map(v => videoMarkup(v, shortMode)).join("");
+
+  message(statusId, list.length ? "" : "No videos found yet.");
+
+  list.forEach(async video => {
+    const { count } = await db.from("likes")
+      .select("*", { count: "exact", head: true })
+      .eq("video_id", video.id);
+
+    const likesEl = $("likes-" + video.id);
+    if (likesEl) likesEl.textContent = `${count ?? 0} likes`;
+  });
+}
+
+async function loadVideos() {
+  message("homeStatus", "Loading videos...");
+
+  const { data, error } = await db.from("videos")
+    .select("id, user_id, title, description, video_url, youtube_url, is_short, created_at, profiles(username)")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    message("homeStatus",
+      "Couldn't load videos. Complete the Supabase database setup first.",
+      "error");
+    return;
+  }
+
+  videos = data || [];
+  applySearch();
+}
+
+function renderShorts() {
+  const list = videos.filter(v => v.is_short);
+  renderVideos(list, "shortsGrid", "shortsStatus", true);
+}
+
+function applySearch() {
+  const query = $("search").value.trim().toLowerCase();
+  const filtered = videos.filter(v =>
+    `${v.title} ${v.description || ""} ${v.profiles?.username || ""}`
+      .toLowerCase().includes(query)
+  );
+
+  renderVideos(filtered, "homeGrid", "homeStatus");
+  renderShorts();
+}
+
+async function loadChannel() {
+  if (!currentUser) {
+    $("channelGrid").innerHTML = "";
+    message("channelStatus", "Sign in to view your channel.");
+    return;
+  }
+
+  const list = videos.filter(v => v.user_id === currentUser.id);
+  renderVideos(list, "channelGrid", "channelStatus");
+}
+
+async function loadSubscriptions() {
+  if (!currentUser) {
+    $("subscriptionsGrid").innerHTML = "";
+    message("subscriptionsStatus", "Sign in to see your subscriptions.");
+    return;
+  }
+
+  const { data, error } = await db.from("subscriptions")
+    .select("creator_id")
+    .eq("subscriber_id", currentUser.id);
+
+  if (error) {
+    message("subscriptionsStatus", error.message, "error");
+    return;
+  }
+
+  const ids = (data || []).map(s => s.creator_id);
+  renderVideos(videos.filter(v => ids.includes(v.user_id)),
+    "subscriptionsGrid", "subscriptionsStatus");
+}
+
+async function likeVideo(videoId) {
+  if (!currentUser) return alert("Sign in to like videos.");
+
+  const { data: existing, error: findError } = await db.from("likes")
+    .select("id")
+    .eq("video_id", videoId)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (findError) return alert(findError.message);
+
+  const result = existing
+    ? await db.from("likes").delete().eq("id", existing.id)
+    : await db.from("likes").insert({ video_id: videoId, user_id: currentUser.id });
+
+  if (result.error) return alert(result.error.message);
+  await loadVideos();
+}
+
+async function commentOnVideo(videoId) {
+  if (!currentUser) return alert("Sign in to comment.");
+
+  const text = prompt("Write your comment (max 1000 characters):");
+  if (!text?.trim()) return;
+  if (text.length > 1000) return alert("Comments must be 1000 characters or fewer.");
+
+  const { error } = await db.from("comments").insert({
+    video_id: videoId,
+    user_id: currentUser.id,
+    body: text.trim()
+  });
+
+  if (error) return alert(error.message);
+  alert("Comment posted!");
+}
+
+async function subscribeTo(creatorId) {
+  if (!currentUser) return alert("Sign in to subscribe.");
+  if (creatorId === currentUser.id) return alert("You can't subscribe to yourself.");
+
+  const { data: existing, error: findError } = await db.from("subscriptions")
+    .select("subscriber_id")
+    .eq("subscriber_id", currentUser.id)
+    .eq("creator_id", creatorId)
+    .maybeSingle();
+
+  if (findError) return alert(findError.message);
+
+  const result = existing
+    ? await db.from("subscriptions").delete()
+        .eq("subscriber_id", currentUser.id).eq("creator_id", creatorId)
+    : await db.from("subscriptions").insert({
+        subscriber_id: currentUser.id,
+        creator_id: creatorId
+      });
+
+  if (result.error) alert(result.error.message);
+  else alert(existing ? "Unsubscribed." : "Subscribed!");
+}
+
+async function handleUpload(event) {
+  event.preventDefault();
+
+  if (!currentUser) {
+    message("uploadStatus", "Sign in before uploading.", "error");
+    return;
+  }
+
+  setBusy("uploadForm", true);
+  message("uploadStatus", "Publishing...");
+
+  let uploadedPath = null;
+
+  try {
+    const title = $("videoTitle").value.trim();
+    const description = $("videoDescription").value.trim();
+    const file = $("videoFile").files[0];
+    const rawUrl = $("youtubeUrl").value.trim();
+    let youtube_url = null;
+    let video_url = null;
+
+    if (!title) throw new Error("Enter a video title.");
+    if (title.length > 120) throw new Error("Title is too long.");
+
+    if (rawUrl) {
+      const id = youtubeId(rawUrl);
+      if (!id) throw new Error("Enter a supported YouTube video URL.");
+      youtube_url = rawUrl;
+    } else if (file) {
+      if (!file.type.startsWith("video/")) throw new Error("Choose a video file.");
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error("For this first version, videos must be 50 MB or smaller.");
+      }
+
+      const extension = file.name.split(".").pop().toLowerCase();
+      if (!["mp4", "webm", "mov"].includes(extension)) {
+        throw new Error("Supported file formats: MP4, WebM, and MOV.");
+      }
+
+      const path = `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+      const upload = await db.storage.from("videos").upload(path, file, {
+        contentType: file.type,
+        upsert: false
+      });
+
+      if (upload.error) throw upload.error;
+      uploadedPath = path;
+
+      const { data: publicData } = db.storage.from("videos").getPublicUrl(path);
+      video_url = publicData.publicUrl;
+    } else {
+      throw new Error("Choose a video file or enter a YouTube URL.");
+    }
+
+    const { error } = await db.from("videos").insert({
+      user_id: currentUser.id,
+      title,
+      description,
+      video_url,
+      youtube_url,
+      is_short: $("videoType").value === "short"
+    });
+
+    if (error) throw error;
+
+    $("uploadForm").reset();
+    message("uploadStatus", "Video published successfully!", "success");
+    await loadVideos();
+    navigate("home");
+  } catch (error) {
+    // If the database insert failed, remove the uploaded object.
+    // This is safe because the storage policy restricts deletion to its owner.
+    if (uploadedPath) {
+      await db.storage.from("videos").remove([uploadedPath]);
+    }
+    message("uploadStatus", error.message || "Upload failed.", "error");
+  } finally {
+    setBusy("uploadForm", false);
+  }
+}
+
+$("authForm").addEventListener("submit", handleAuth);
+$("uploadForm").addEventListener("submit", handleUpload);
+$("search").addEventListener("input", applySearch);
+
+db.auth.onAuthStateChange(() => {
+  // Avoid making Supabase requests directly inside the auth callback.
+  setTimeout(async () => {
+    try {
+      await refreshSession();
+      if (!currentUser && currentPage === "upload") {
+        message("uploadStatus", "Sign in to upload videos.");
+      }
+    } catch (error) {
+      console.error("Session refresh failed:", error);
+    }
+  }, 0);
+});
+
+(async function init() {
+  try {
+    await refreshSession();
+    await loadVideos();
+  } catch (error) {
+    message("homeStatus", "Unable to connect. Check the Supabase configuration.", "error");
+  }
+})();
+</script>
+</body>
+            </html>
