@@ -1,53 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#09090f">
-<meta name="description" content="ECION is your private video-sharing community.">
-<title>ECION — Your Video Universe</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{color-scheme:dark;--bg:#09090f;--panel:#14141f;--card:#1c1c29;--text:#f6f4fa;--muted:#aaa6b8;--red:#ff174f;--purple:#9b5cff;--border:#343044}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#ff174f16,transparent 38%),radial-gradient(ellipse at 90% 10%,#9b5cff19,transparent 38%),var(--bg);color:var(--text);font:15px Inter,system-ui,Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;color:white;background:linear-gradient(110deg,var(--red),var(--purple));font-weight:750;transition:filter .2s,transform .2s,box-shadow .2s}button:hover{filter:brightness(1.1);box-shadow:0 0 18px #9b5cff38}button:active{transform:scale(.98)}button:disabled{opacity:.55;cursor:wait}button.secondary{background:var(--card);border:1px solid var(--border)}input,textarea,select{width:100%;padding:12px;color:var(--text);background:#20202c;border:1px solid var(--border);border-radius:10px}input:focus,textarea:focus,select:focus{outline:2px solid #9b5cff88;border-color:var(--purple)}button:focus-visible,a:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
-header{min-height:70px;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;padding:12px 22px;background:#111117ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;letter-spacing:2px;white-space:nowrap}.logo{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--purple));box-shadow:0 0 20px #9b5cff33;font-size:25px}.search{flex:1;max-width:550px;margin:auto}
-.layout{display:grid;grid-template-columns:210px minmax(0,1fr)}aside{position:sticky;top:70px;height:calc(100vh - 70px);padding:20px 12px;border-right:1px solid var(--border)}.nav{display:flex;flex-direction:column;gap:8px}.nav button{background:transparent;text-align:left;border:1px solid transparent}.nav button.active,.nav button:hover{background:var(--panel);border-color:var(--border)}main{min-width:0;padding:28px}h1{margin-top:0;font-size:30px}h2{font-size:20px}.muted{color:var(--muted)}.small{font-size:12px}.hero{padding:28px;margin-bottom:28px;border-radius:18px;background:radial-gradient(ellipse at 90% 10%,#9b5cff38,transparent 50%),radial-gradient(ellipse at 10% 100%,#ff315b27,transparent 55%),var(--panel);border:1px solid var(--border)}.hero h1{font-size:clamp(28px,4vw,43px);margin-bottom:10px}.gradient{background:linear-gradient(90deg,var(--red),var(--purple));background-clip:text;color:transparent}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.video-card{min-width:0;background:var(--panel);border:1px solid var(--border);border-radius:15px;overflow:hidden}.preview{width:100%;aspect-ratio:16/9;display:block;background:#050509;object-fit:cover;border:0}.preview.short{aspect-ratio:9/13;max-height:390px;object-fit:contain}.card-body{padding:14px}.card-body h3{margin:0 0 8px;overflow-wrap:anywhere}.card-body p{font-size:13px;color:var(--muted);overflow-wrap:anywhere}.card-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.card-actions button{padding:8px 10px;font-size:12px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:0}.panel{padding:22px;background:var(--panel);border:1px solid var(--border);border-radius:15px;margin-bottom:20px}form{display:grid;gap:13px}form label{display:grid;gap:7px;font-size:14px}.auth-wrap{max-width:440px;margin:35px auto;padding:0 12px}.auth-wrap>.brand{justify-content:center;margin-bottom:25px}.hidden{display:none!important}.status{margin:14px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status.error{color:#ff718a}.status.success{color:#75e6a4}.divider{display:flex;align-items:center;gap:12px;margin:15px 0;color:var(--muted);font-size:12px}.divider:before,.divider:after{content:"";height:1px;flex:1;background:var(--border)}.discord-button{width:100%;background:#5865f2;margin-bottom:8px}.discord-button:hover{background:#4752c4}footer{padding:30px;text-align:center;color:var(--muted);font-size:12px}::selection{background:#9b5cff66;color:white}*{scrollbar-width:thin;scrollbar-color:var(--purple) var(--bg)}
-@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){header{padding:10px;flex-wrap:wrap}.brand{font-size:19px}.search{order:3;flex-basis:100%;max-width:none}.layout{display:block}aside{position:static;height:auto;padding:8px;border-right:0}.nav{flex-direction:row;overflow-x:auto}.nav button{white-space:nowrap}main{padding:15px}.grid{grid-template-columns:1fr}.hero{padding:20px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important}}
-</style>
-</head>
-<body>
-<header>
-  <div class="brand"><div class="logo">E</div> ECION</div>
-  <div class="search"><input id="search" type="search" placeholder="Search videos and creators..." aria-label="Search videos and creators"></div>
-  <button id="accountButton" onclick="showAccount()">Sign in</button>
-</header>
-
-<div id="authView" class="auth-wrap hidden">
-  <div class="brand"><div class="logo">E</div> ECION</div>
-  <div class="panel">
-    <h1 id="authTitle">Welcome back</h1>
-    <p class="muted">Your video universe awaits.</p>
-    <button id="discordLoginButton" type="button" class="discord-button" onclick="signInWithDiscord()">🎮 Continue with Discord</button>
-    <div class="divider">OR USE EMAIL</div>
-    <form id="authForm">
-      <label id="usernameLabel" class="hidden">Username<input id="username" maxlength="24" autocomplete="username"></label>
-      <label id="inviteLabel" class="hidden">Invite code<input id="inviteCode" autocomplete="off"></label>
-      <label>Email<input id="email" type="email" required autocomplete="email"></label>
-      <label>Password<input id="password" type="password" required minlength="8" autocomplete="current-password"></label>
-      <button id="authSubmit" type="submit">Sign in</button>
-    </form>
-    <p id="authStatus" class="status" role="status"></p>
-    <button id="authToggle" class="secondary" style="width:100%" onclick="toggleAuthMode()">Create an account</button>
-    <button class="secondary" style="width:100%;margin-top:10px" onclick="showHome()">Back to home</button>
-  </div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101014">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#09090f">
+<meta name="description" content="ECION is your private video-sharing community.">
 <title>ECION — Your Video Universe</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -57,72 +14,102 @@ header{min-height:70px;position:sticky;top:0;z-index:10;display:flex;align-items
   color-scheme: dark;
   --bg: #09090f;
   --panel: #14141f;
-  --card: #202027;
+  --card: #1b1b28;
   --text: #f6f4fa;
   --muted: #a4a1b0;
-  --red: #ff315b;
+  --red: #ff174f;
   --purple: #9b5cff;
-  --border: #30303a;
+  --border: #30303e;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--purple) var(--bg);
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;
-  background:
-    radial-gradient(ellipse at 10% 0%, #ff315b15, transparent 40%),
-    radial-gradient(ellipse at 90% 10%, #9b5cff18, transparent 40%),
-    var(--bg);
   color: var(--text);
+  background:
+    radial-gradient(ellipse at 10% 0%, #ff174f12, transparent 38%),
+    radial-gradient(ellipse at 90% 10%, #9b5cff18, transparent 38%),
+    var(--bg);
   font-family: Inter, system-ui, Arial, sans-serif;
 }
 
-button, input, textarea, select { font: inherit; }
+button, input, textarea, select {
+  font: inherit;
+}
 
 button {
   cursor: pointer;
+  color: white;
   border: 0;
   border-radius: 10px;
   padding: 11px 15px;
-  color: white;
   background: linear-gradient(110deg, var(--red), var(--purple));
   font-weight: 750;
+  transition: filter .2s, transform .2s, box-shadow .2s;
 }
 
-button:hover { filter: brightness(1.12); }
+button:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 0 18px #9b5cff35;
+}
 
-button:disabled { opacity: .55; cursor: wait; }
+button:active {
+  transform: scale(.97);
+}
+
+button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
 
 button.secondary {
   background: var(--card);
   border: 1px solid var(--border);
 }
 
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 3px;
+}
+
 input, textarea, select {
   width: 100%;
   padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
   color: var(--text);
+  background: #20202c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 
 input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--purple);
+  border-color: var(--purple);
+  outline: none;
 }
 
 header {
+  min-height: 70px;
   position: sticky;
   top: 0;
   z-index: 20;
-  min-height: 70px;
   display: flex;
   align-items: center;
   gap: 18px;
   padding: 12px 22px;
-  background: #121216f5;
+  background: #111117ee;
+  backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(14px);
 }
 
 .brand {
@@ -141,10 +128,10 @@ header {
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--red), var(--purple));
-  box-shadow: 0 0 20px #9b5cff33;
   color: white;
   font-size: 25px;
+  background: linear-gradient(135deg, var(--red), var(--purple));
+  box-shadow: 0 0 20px #9b5cff33;
 }
 
 .search {
@@ -162,6 +149,7 @@ aside {
   position: sticky;
   top: 70px;
   height: calc(100vh - 70px);
+  overflow-y: auto;
   padding: 20px 12px;
   border-right: 1px solid var(--border);
 }
@@ -173,9 +161,9 @@ aside {
 }
 
 .nav button {
+  text-align: left;
   background: transparent;
   border: 1px solid transparent;
-  text-align: left;
 }
 
 .nav button.active,
@@ -184,18 +172,32 @@ aside {
   border-color: var(--border);
 }
 
-main { min-width: 0; padding: 28px; }
+main {
+  min-width: 0;
+  padding: 28px;
+}
 
-h1 { margin-top: 0; font-size: 30px; }
-h2 { font-size: 20px; }
+h1 {
+  margin-top: 0;
+  font-size: 30px;
+}
 
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
+h2 {
+  font-size: 20px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 12px;
+}
 
 .gradient {
+  color: transparent;
   background: linear-gradient(90deg, var(--red), var(--purple));
   background-clip: text;
-  color: transparent;
 }
 
 .hero {
@@ -209,7 +211,10 @@ h2 { font-size: 20px; }
   border: 1px solid var(--border);
 }
 
-.hero h1 { font-size: clamp(28px, 4vw, 43px); }
+.hero h1 {
+  font-size: clamp(28px, 4vw, 43px);
+  margin-bottom: 10px;
+}
 
 .grid {
   display: grid;
@@ -220,9 +225,9 @@ h2 { font-size: 20px; }
 .video-card {
   min-width: 0;
   overflow: hidden;
-  border-radius: 15px;
   background: var(--panel);
   border: 1px solid var(--border);
+  border-radius: 15px;
 }
 
 .preview {
@@ -230,17 +235,19 @@ h2 { font-size: 20px; }
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  background: #050508;
+  background: #050507;
   border: 0;
 }
 
 .preview.short {
   aspect-ratio: 9 / 16;
-  max-height: 600px;
+  max-height: 65vh;
   object-fit: contain;
 }
 
-.card-body { padding: 14px; }
+.card-body {
+  padding: 14px;
+}
 
 .card-body h3 {
   margin: 0 0 8px;
@@ -250,6 +257,7 @@ h2 { font-size: 20px; }
 .card-body p {
   font-size: 13px;
   overflow-wrap: anywhere;
+  color: var(--muted);
 }
 
 .card-actions {
@@ -266,22 +274,34 @@ h2 { font-size: 20px; }
 
 .row {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.row > * { flex: 1; min-width: 0; }
+.row > * {
+  flex: 1;
+  min-width: 0;
+}
 
 .panel {
   padding: 22px;
+  margin-bottom: 20px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 15px;
-  margin-bottom: 20px;
 }
 
-form { display: grid; gap: 13px; }
-form label { display: grid; gap: 7px; font-size: 14px; }
+form {
+  display: grid;
+  gap: 13px;
+}
+
+form label {
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+}
 
 .auth-wrap {
   max-width: 440px;
@@ -294,7 +314,9 @@ form label { display: grid; gap: 7px; font-size: 14px; }
   margin-bottom: 25px;
 }
 
-.hidden { display: none !important; }
+.hidden {
+  display: none !important;
+}
 
 .status {
   margin: 14px 0;
@@ -302,68 +324,55 @@ form label { display: grid; gap: 7px; font-size: 14px; }
   overflow-wrap: anywhere;
 }
 
-.status.error { color: #ff718a; }
-.status.success { color: #75e6a4; }
-
-footer {
-  padding: 30px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 12px;
+.status.error {
+  color: #ff718a;
 }
 
-/* ECION SHORTS: vertical scrolling and snap-to-video */
-#shortsPage { min-width: 0; }
+.status.success {
+  color: #75e6a4;
+}
 
+/* Vertical Shorts feed */
 .shorts-feed {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  width: min(100%, 760px);
-  height: calc(100vh - 210px);
-  height: calc(100dvh - 210px);
-  min-height: 350px;
-  margin: 0 auto;
-  padding: 5px 10px 20px;
+  align-items: center;
+  gap: 20px;
+  height: 75vh;
   overflow-y: auto;
   overflow-x: hidden;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
+  padding: 8px;
   scroll-snap-type: y mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: var(--purple) var(--bg);
+  overscroll-behavior-y: contain;
 }
 
 .shorts-feed .video-card {
   flex: 0 0 auto;
-  width: 100%;
+  width: min(100%, 430px);
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 
 .shorts-feed .preview.short {
   width: 100%;
-  height: min(62dvh, 650px);
+  height: min(60vh, 650px);
   max-height: none;
   aspect-ratio: 9 / 16;
   object-fit: contain;
-  background: #050508;
 }
 
-.shorts-feed iframe.preview.short {
-  height: min(62dvh, 650px);
-}
-
-.shorts-feed .card-body { padding: 12px; }
-
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--red), var(--purple));
-  border-radius: 20px;
+footer {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
 }
 
 @media (max-width: 1000px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 650px) {
@@ -372,16 +381,26 @@ footer {
     flex-wrap: wrap;
   }
 
-  .brand { font-size: 19px; }
-  .search { order: 3; flex-basis: 100%; max-width: none; }
+  .brand {
+    font-size: 19px;
+  }
 
-  .layout { display: block; }
+  .search {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .layout {
+    display: block;
+  }
 
   aside {
     position: static;
     height: auto;
     padding: 8px;
     border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .nav {
@@ -389,31 +408,40 @@ footer {
     overflow-x: auto;
   }
 
-  .nav button { white-space: nowrap; }
-
-  main { padding: 15px; }
-
-  .grid { grid-template-columns: 1fr; }
-
-  .hero { padding: 20px; }
-
-  .shorts-feed {
-    width: 100%;
-    height: calc(100dvh - 230px);
-    min-height: 300px;
-    padding: 5px;
+  .nav button {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
-  .shorts-feed .preview.short,
-  .shorts-feed iframe.preview.short {
-    height: min(54dvh, 560px);
+  main {
+    padding: 15px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .shorts-feed {
+    height: 70vh;
+  }
+
+  .shorts-feed .video-card {
+    width: 100%;
+  }
+
+  .shorts-feed .preview.short {
+    height: 50vh;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
-    transition: none !important;
+    transition-duration: .01ms !important;
   }
 }
 </style>
@@ -429,7 +457,8 @@ footer {
 
   <div class="search">
     <input id="search" type="search"
-      placeholder="Search videos and creators...">
+      placeholder="Search videos and creators..."
+      aria-label="Search videos and creators">
   </div>
 
   <button id="accountButton" onclick="showAccount()">Sign in</button>
@@ -438,7 +467,8 @@ footer {
 <!-- Authentication -->
 <div id="authView" class="auth-wrap hidden">
   <div class="brand">
-    <div class="logo">E</div> ECION
+    <div class="logo">E</div>
+    ECION
   </div>
 
   <div class="panel">
@@ -470,21 +500,24 @@ footer {
       <button id="authSubmit" type="submit">Sign in</button>
     </form>
 
-    <button id="discordButton" class="secondary"
-      style="width:100%;margin-top:12px"
-      onclick="signInWithDiscord()">
-      Sign in with Discord
-    </button>
-
     <p id="authStatus" class="status" role="status"></p>
 
+    <button id="discordButton" class="secondary"
+      style="width:100%;margin-top:10px"
+      type="button" onclick="signInWithDiscord()">
+      🎮 Continue with Discord
+    </button>
+
     <button id="authToggle" class="secondary"
-      style="width:100%" onclick="toggleAuthMode()">
+      style="width:100%;margin-top:10px"
+      onclick="toggleAuthMode()">
       Create an account
     </button>
 
     <button class="secondary" style="width:100%;margin-top:10px"
-      onclick="showHome()">Back to home</button>
+      onclick="showHome()">
+      Back to home
+    </button>
   </div>
 </div>
 
@@ -512,6 +545,7 @@ footer {
   </aside>
 
   <main>
+    <!-- Home -->
     <section id="homePage">
       <div class="hero">
         <p class="gradient"><b>YOUR VIDEO UNIVERSE</b></p>
@@ -522,7 +556,7 @@ footer {
         <button onclick="navigate('upload')">＋ Upload a video</button>
       </div>
 
-      <div class="row" style="align-items:center;margin-bottom:18px">
+      <div class="row" style="margin-bottom:18px">
         <div>
           <h2 style="margin:0">Explore videos</h2>
           <p class="muted small">Videos from your community</p>
@@ -534,14 +568,16 @@ footer {
       <p id="homeStatus" class="status muted">Loading videos...</p>
     </section>
 
+    <!-- Shorts -->
     <section id="shortsPage" class="hidden">
       <h1><span class="gradient">ECION</span> Shorts</h1>
-      <p class="muted">Scroll down to watch the next Short.</p>
+      <p class="muted">Scroll down to watch more Shorts.</p>
 
       <div id="shortsGrid" class="shorts-feed"></div>
       <p id="shortsStatus" class="status muted"></p>
     </section>
 
+    <!-- Subscriptions -->
     <section id="subscriptionsPage" class="hidden">
       <h1>Subscriptions</h1>
       <p class="muted">Videos from creators you follow.</p>
@@ -549,23 +585,28 @@ footer {
       <p id="subscriptionsStatus" class="status muted"></p>
     </section>
 
+    <!-- Channel -->
     <section id="channelPage" class="hidden">
       <h1>My channel</h1>
+
       <div class="panel">
         <h2 id="channelName">Your channel</h2>
         <p id="channelEmail" class="muted"></p>
-        <button class="secondary" onclick="loadVideos()">Refresh uploads</button>
+        <button class="secondary" onclick="loadChannel()">Refresh uploads</button>
       </div>
+
       <div id="channelGrid" class="grid"></div>
       <p id="channelStatus" class="status muted"></p>
     </section>
 
+    <!-- Upload -->
     <section id="uploadPage" class="hidden">
       <h1>Upload a video</h1>
 
       <div class="panel">
         <p class="muted">
-          Sign in first. Video files use the configured Supabase Storage bucket.
+          Sign in first. Video files are stored in your configured
+          Supabase Storage bucket.
         </p>
 
         <form id="uploadForm">
@@ -588,17 +629,18 @@ footer {
           </label>
 
           <label>
-            Upload video file
+            Upload a video file
             <input id="videoFile" type="file"
               accept="video/mp4,video/webm,video/quicktime">
           </label>
 
           <p class="muted small">
-            Or provide a YouTube link. Only share videos you have permission to use.
+            Or provide a YouTube link instead. Only share videos you have
+            permission to upload.
           </p>
 
           <label>
-            YouTube URL
+            YouTube URL (optional)
             <input id="youtubeUrl" type="url"
               placeholder="https://www.youtube.com/watch?v=...">
           </label>
@@ -610,6 +652,7 @@ footer {
       </div>
     </section>
 
+    <!-- Settings -->
     <section id="settingsPage" class="hidden">
       <h1>Settings</h1>
 
@@ -622,13 +665,14 @@ footer {
 
       <div class="panel">
         <h2>Appearance</h2>
-        <p class="muted">ECION signature dark theme.</p>
+        <p class="muted">ECION signature dark red-and-purple theme.</p>
       </div>
 
       <div class="panel">
         <h2>Privacy and safety</h2>
         <p class="muted">
-          Don't upload private information or videos you don't have permission to share.
+          Don't upload private information or videos you don't have
+          permission to share.
         </p>
       </div>
     </section>
@@ -640,7 +684,10 @@ footer {
 <script>
 "use strict";
 
-/* Supabase configuration */
+/* =========================================
+   SUPABASE CONFIGURATION
+========================================= */
+
 const SUPABASE_URL = "https://nihnqhfgseifvncjxxej.supabase.co";
 const SUPABASE_KEY = "sb_publishable_22ZH3OKQ_C6tApeHx7vF-A_XHJeKoaE";
 
@@ -658,18 +705,19 @@ let currentPage = "home";
 const $ = id => document.getElementById(id);
 
 function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#39;"
-  })[char]);
+  })[character]);
 }
 
 function message(id, text, type = "") {
   const element = $(id);
   if (!element) return;
+
   element.textContent = text;
   element.className = "status " + type;
 }
@@ -680,19 +728,63 @@ function setBusy(formId, busy) {
   });
 }
 
+/* =========================================
+   PAGE NAVIGATION
+========================================= */
+
 function showHome() {
   $("authView").classList.add("hidden");
   $("appView").classList.remove("hidden");
+  navigate("home");
   loadVideos();
 }
 
 function showAccount() {
   $("appView").classList.add("hidden");
   $("authView").classList.remove("hidden");
+  $("email").focus();
 }
+
+function navigate(page) {
+  const pages = [
+    "home",
+    "shorts",
+    "subscriptions",
+    "channel",
+    "upload",
+    "settings"
+  ];
+
+  if (!pages.includes(page)) return;
+
+  currentPage = page;
+
+  pages.forEach(name => {
+    $(name + "Page").classList.toggle("hidden", name !== page);
+  });
+
+  document.querySelectorAll("[data-page]").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+
+  if (page === "subscriptions") loadSubscriptions();
+  if (page === "channel") loadChannel();
+  if (page === "shorts") renderShorts();
+
+  if (page === "upload" && !currentUser) {
+    message("uploadStatus", "Sign in to upload videos.");
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* =========================================
+   AUTHENTICATION
+========================================= */
 
 function toggleAuthMode() {
   authMode = authMode === "login" ? "signup" : "login";
+
   const signup = authMode === "signup";
 
   $("authTitle").textContent = signup ? "Join ECION" : "Welcome back";
@@ -703,46 +795,17 @@ function toggleAuthMode() {
 
   $("usernameLabel").classList.toggle("hidden", !signup);
   $("inviteLabel").classList.toggle("hidden", !signup);
+
   $("username").required = signup;
   $("inviteCode").required = signup;
-  $("password").autocomplete = signup
-    ? "new-password"
-    : "current-password";
+  $("password").autocomplete = signup ? "new-password" : "current-password";
 
   message("authStatus", "");
 }
 
-/* Discord OAuth */
-async function signInWithDiscord() {
-  const button = $("discordButton");
-  button.disabled = true;
-  message("authStatus", "Opening Discord...");
-
-  try {
-    const redirectTo = window.location.origin + window.location.pathname;
-
-    const { error } = await db.auth.signInWithOAuth({
-      provider: "discord",
-      options: {
-        scopes: "identify email",
-        redirectTo
-      }
-    });
-
-    if (error) throw error;
-  } catch (error) {
-    message(
-      "authStatus",
-      error.message || "Discord login failed. Check Supabase's Discord provider settings.",
-      "error"
-    );
-    button.disabled = false;
-  }
-}
-
-/* Email and password authentication */
 async function handleAuth(event) {
   event.preventDefault();
+
   setBusy("authForm", true);
   message("authStatus", "Working...");
 
@@ -757,7 +820,7 @@ async function handleAuth(event) {
 
       if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
         throw new Error(
-          "Username must be 3–24 characters: letters, numbers, or underscores."
+          "Username must be 3–24 characters using letters, numbers, or underscores."
         );
       }
 
@@ -765,6 +828,7 @@ async function handleAuth(event) {
         throw new Error("Enter your invite code.");
       }
 
+      // Keep invite verification server-side.
       const check = await db.rpc("verify_invite", {
         invite_code: inviteCode
       });
@@ -793,16 +857,51 @@ async function handleAuth(event) {
         return;
       }
     } else {
-      result = await db.auth.signInWithPassword({ email, password });
+      result = await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
       if (result.error) throw result.error;
     }
 
     await refreshSession();
     showHome();
+
   } catch (error) {
-    message("authStatus", error.message || "Authentication failed.", "error");
+    message(
+      "authStatus",
+      error.message || "Authentication failed.",
+      "error"
+    );
   } finally {
     setBusy("authForm", false);
+  }
+}
+
+/* Discord OAuth.
+   Enable the Discord provider in Supabase before using this. */
+
+async function signInWithDiscord() {
+  message("authStatus", "Connecting to Discord...");
+
+  try {
+    const { error } = await db.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        scopes: "identify email",
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+  } catch (error) {
+    message(
+      "authStatus",
+      error.message || "Discord login failed.",
+      "error"
+    );
   }
 }
 
@@ -819,16 +918,23 @@ async function refreshSession() {
       .eq("id", currentUser.id)
       .maybeSingle();
 
-    if (!result.error) currentProfile = result.data;
+    if (!result.error) {
+      currentProfile = result.data;
+    }
   }
 
   $("accountButton").textContent = currentUser
     ? (currentProfile?.username || "My account")
     : "Sign in";
 
-  $("settingsEmail").textContent = currentUser?.email || "Not signed in";
-  $("channelName").textContent = currentProfile?.username || "Your channel";
-  $("channelEmail").textContent = currentUser?.email || "";
+  $("settingsEmail").textContent =
+    currentUser?.email || "Not signed in";
+
+  $("channelName").textContent =
+    currentProfile?.username || "Your channel";
+
+  $("channelEmail").textContent =
+    currentUser?.email || "";
 
   return currentUser;
 }
@@ -845,37 +951,10 @@ async function signOut() {
   showHome();
 }
 
-/* Page navigation */
-function navigate(page) {
-  currentPage = page;
+/* =========================================
+   YOUTUBE URL HELPERS
+========================================= */
 
-  const pages = [
-    "home",
-    "shorts",
-    "subscriptions",
-    "channel",
-    "upload",
-    "settings"
-  ];
-
-  pages.forEach(name => {
-    $(name + "Page").classList.toggle("hidden", name !== page);
-  });
-
-  document.querySelectorAll("[data-page]").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === page);
-  });
-
-  if (page === "subscriptions") loadSubscriptions();
-  if (page === "channel") loadChannel();
-  if (page === "shorts") renderShorts();
-
-  if (page === "upload" && !currentUser) {
-    message("uploadStatus", "Sign in to upload videos.");
-  }
-}
-
-/* YouTube URL handling */
 function youtubeId(url) {
   try {
     const parsed = new URL(url);
@@ -884,13 +963,10 @@ function youtubeId(url) {
       return parsed.pathname.slice(1);
     }
 
-    if ([
-      "youtube.com",
-      "www.youtube.com",
-      "m.youtube.com",
-      "youtube-nocookie.com",
-      "www.youtube-nocookie.com"
-    ].includes(parsed.hostname)) {
+    if (
+      ["youtube.com", "www.youtube.com", "m.youtube.com"]
+        .includes(parsed.hostname)
+    ) {
       if (parsed.pathname === "/watch") {
         return parsed.searchParams.get("v");
       }
@@ -908,13 +984,18 @@ function youtubeId(url) {
   return null;
 }
 
-/* Video cards */
+/* =========================================
+   VIDEO RENDERING
+========================================= */
+
 function videoMarkup(video, shortMode = false) {
   const title = escapeHTML(video.title);
   const username = escapeHTML(video.profiles?.username || "Creator");
   const description = escapeHTML(video.description || "");
-  const id = youtubeId(video.youtube_url || "");
-  const embedId = id ? escapeHTML(id) : null;
+
+  const embedId = video.youtube_url
+    ? youtubeId(video.youtube_url)
+    : null;
 
   let media;
 
@@ -922,11 +1003,11 @@ function videoMarkup(video, shortMode = false) {
     media = `
       <iframe
         class="preview ${shortMode ? "short" : ""}"
-        src="https://www.youtube-nocookie.com/embed/${embedId}"
+        src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(embedId)}"
         title="${title}"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
-        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen>
       </iframe>`;
   } else if (video.video_url) {
@@ -949,6 +1030,7 @@ function videoMarkup(video, shortMode = false) {
   return `
     <article class="video-card">
       ${media}
+
       <div class="card-body">
         <h3>${title}</h3>
         <p>By ${username}</p>
@@ -959,10 +1041,12 @@ function videoMarkup(video, shortMode = false) {
             onclick="likeVideo('${escapeHTML(video.id)}')">
             ❤️ Like
           </button>
+
           <button class="secondary"
             onclick="commentOnVideo('${escapeHTML(video.id)}')">
             💬 Comment
           </button>
+
           <button class="secondary"
             onclick="subscribeTo('${escapeHTML(video.user_id)}')">
             🔔 Subscribe
@@ -975,7 +1059,9 @@ function videoMarkup(video, shortMode = false) {
 }
 
 function renderVideos(list, gridId, statusId, shortMode = false) {
-  $(gridId).innerHTML = list
+  const grid = $(gridId);
+
+  grid.innerHTML = list
     .map(video => videoMarkup(video, shortMode))
     .join("");
 
@@ -996,51 +1082,60 @@ function renderVideos(list, gridId, statusId, shortMode = false) {
   });
 }
 
-/* Load videos */
+/* =========================================
+   LOAD AND SEARCH VIDEOS
+========================================= */
+
 async function loadVideos() {
   message("homeStatus", "Loading videos...");
 
-  const { data, error } = await db.from("videos")
-    .select(`
-      id,
-      user_id,
-      title,
-      description,
-      video_url,
-      youtube_url,
-      is_short,
-      created_at,
-      profiles(username)
-    `)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  try {
+    const { data, error } = await db.from("videos")
+      .select(
+        "id, user_id, title, description, video_url, youtube_url, is_short, created_at, profiles(username)"
+      )
+      .order("created_at", { ascending: false })
+      .limit(100);
 
-  if (error) {
+    if (error) throw error;
+
+    videos = data || [];
+    applySearch();
+
+  } catch (error) {
+    console.error("ECION video loading error:", error);
+
     message(
       "homeStatus",
       "Couldn't load videos: " + error.message,
       "error"
     );
-    return;
-  }
 
-  videos = data || [];
-  applySearch();
+    message(
+      "shortsStatus",
+      "Couldn't load Shorts: " + error.message,
+      "error"
+    );
+  }
 }
 
 function renderShorts() {
-  const shorts = videos.filter(video => video.is_short);
-  renderVideos(shorts, "shortsGrid", "shortsStatus", true);
+  const list = videos.filter(video => video.is_short);
+  renderVideos(list, "shortsGrid", "shortsStatus", true);
 }
 
 function applySearch() {
   const query = $("search").value.trim().toLowerCase();
 
-  const filtered = videos.filter(video =>
-    `${video.title} ${video.description || ""} ${video.profiles?.username || ""}`
-      .toLowerCase()
-      .includes(query)
-  );
+  const filtered = videos.filter(video => {
+    const searchable = [
+      video.title,
+      video.description || "",
+      video.profiles?.username || ""
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(query);
+  });
 
   renderVideos(filtered, "homeGrid", "homeStatus");
   renderShorts();
@@ -1053,11 +1148,11 @@ async function loadChannel() {
     return;
   }
 
-  renderVideos(
-    videos.filter(video => video.user_id === currentUser.id),
-    "channelGrid",
-    "channelStatus"
+  const ownVideos = videos.filter(
+    video => video.user_id === currentUser.id
   );
+
+  renderVideos(ownVideos, "channelGrid", "channelStatus");
 }
 
 async function loadSubscriptions() {
@@ -1078,18 +1173,24 @@ async function loadSubscriptions() {
 
   const creatorIds = (data || []).map(item => item.creator_id);
 
+  const subscribedVideos = videos.filter(
+    video => creatorIds.includes(video.user_id)
+  );
+
   renderVideos(
-    videos.filter(video => creatorIds.includes(video.user_id)),
+    subscribedVideos,
     "subscriptionsGrid",
     "subscriptionsStatus"
   );
 }
 
-/* Likes */
+/* =========================================
+   LIKES
+========================================= */
+
 async function likeVideo(videoId) {
   if (!currentUser) {
-    alert("Sign in to like videos.");
-    return;
+    return alert("Sign in to like videos.");
   }
 
   const { data: existing, error: findError } = await db.from("likes")
@@ -1098,10 +1199,7 @@ async function likeVideo(videoId) {
     .eq("user_id", currentUser.id)
     .maybeSingle();
 
-  if (findError) {
-    alert(findError.message);
-    return;
-  }
+  if (findError) return alert(findError.message);
 
   const result = existing
     ? await db.from("likes").delete().eq("id", existing.id)
@@ -1110,19 +1208,18 @@ async function likeVideo(videoId) {
         user_id: currentUser.id
       });
 
-  if (result.error) {
-    alert(result.error.message);
-    return;
-  }
+  if (result.error) return alert(result.error.message);
 
   await loadVideos();
 }
 
-/* Comments */
+/* =========================================
+   COMMENTS
+========================================= */
+
 async function commentOnVideo(videoId) {
   if (!currentUser) {
-    alert("Sign in to comment.");
-    return;
+    return alert("Sign in to comment.");
   }
 
   const text = prompt("Write your comment (max 1000 characters):");
@@ -1130,8 +1227,7 @@ async function commentOnVideo(videoId) {
   if (!text?.trim()) return;
 
   if (text.length > 1000) {
-    alert("Comments must be 1000 characters or fewer.");
-    return;
+    return alert("Comments must be 1000 characters or fewer.");
   }
 
   const { error } = await db.from("comments").insert({
@@ -1148,28 +1244,27 @@ async function commentOnVideo(videoId) {
   alert("Comment posted!");
 }
 
-/* Subscriptions */
+/* =========================================
+   SUBSCRIPTIONS
+========================================= */
+
 async function subscribeTo(creatorId) {
   if (!currentUser) {
-    alert("Sign in to subscribe.");
-    return;
+    return alert("Sign in to subscribe.");
   }
 
   if (creatorId === currentUser.id) {
-    alert("You can't subscribe to yourself.");
-    return;
+    return alert("You can't subscribe to yourself.");
   }
 
-  const { data: existing, error: findError } = await db.from("subscriptions")
+  const { data: existing, error: findError } = await db
+    .from("subscriptions")
     .select("subscriber_id")
     .eq("subscriber_id", currentUser.id)
     .eq("creator_id", creatorId)
     .maybeSingle();
 
-  if (findError) {
-    alert(findError.message);
-    return;
-  }
+  if (findError) return alert(findError.message);
 
   const result = existing
     ? await db.from("subscriptions")
@@ -1185,11 +1280,13 @@ async function subscribeTo(creatorId) {
     alert(result.error.message);
   } else {
     alert(existing ? "Unsubscribed." : "Subscribed!");
-    if (currentPage === "subscriptions") loadSubscriptions();
   }
 }
 
-/* Upload videos */
+/* =========================================
+   VIDEO UPLOADS
+========================================= */
+
 async function handleUpload(event) {
   event.preventDefault();
 
@@ -1212,14 +1309,23 @@ async function handleUpload(event) {
     let youtube_url = null;
     let video_url = null;
 
-    if (!title) throw new Error("Enter a video title.");
-    if (title.length > 120) throw new Error("Title is too long.");
+    if (!title) {
+      throw new Error("Enter a video title.");
+    }
+
+    if (title.length > 120) {
+      throw new Error("Title is too long.");
+    }
 
     if (rawUrl) {
-      if (!youtubeId(rawUrl)) {
+      const id = youtubeId(rawUrl);
+
+      if (!id) {
         throw new Error("Enter a supported YouTube video URL.");
       }
+
       youtube_url = rawUrl;
+
     } else if (file) {
       if (!file.type.startsWith("video/")) {
         throw new Error("Choose a video file.");
@@ -1232,10 +1338,11 @@ async function handleUpload(event) {
       const extension = file.name.split(".").pop().toLowerCase();
 
       if (!["mp4", "webm", "mov"].includes(extension)) {
-        throw new Error("Supported formats: MP4, WebM, MOV.");
+        throw new Error("Supported formats: MP4, WebM, and MOV.");
       }
 
-      const path = `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+      const path =
+        `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
 
       const upload = await db.storage.from("videos").upload(path, file, {
         contentType: file.type,
@@ -1246,11 +1353,11 @@ async function handleUpload(event) {
 
       uploadedPath = path;
 
-      const { data: publicData } = db.storage
-        .from("videos")
-        .getPublicUrl(path);
+      const { data: publicData } =
+        db.storage.from("videos").getPublicUrl(path);
 
       video_url = publicData.publicUrl;
+
     } else {
       throw new Error("Choose a video file or enter a YouTube URL.");
     }
@@ -1268,10 +1375,15 @@ async function handleUpload(event) {
 
     $("uploadForm").reset();
 
-    message("uploadStatus", "Video published successfully!", "success");
+    message(
+      "uploadStatus",
+      "Video published successfully!",
+      "success"
+    );
 
     await loadVideos();
     navigate("home");
+
   } catch (error) {
     if (uploadedPath) {
       await db.storage.from("videos").remove([uploadedPath]);
@@ -1282,54 +1394,22 @@ async function handleUpload(event) {
       error.message || "Upload failed.",
       "error"
     );
+
   } finally {
     setBusy("uploadForm", false);
   }
 }
 
-/* Pause locally uploaded Shorts when they scroll out of view. */
-let shortsObserver = null;
+/* =========================================
+   EVENT LISTENERS
+========================================= */
 
-function observeShorts() {
-  if (shortsObserver) shortsObserver.disconnect();
-
-  const feed = $("shortsGrid");
-  if (!feed) return;
-
-  shortsObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      const media = entry.target;
-
-      if (media.tagName === "VIDEO") {
-        if (!entry.isIntersecting) {
-          media.pause();
-        }
-      }
-    });
-  }, {
-    root: feed,
-    threshold: 0.25
-  });
-
-  feed.querySelectorAll("video").forEach(video => {
-    shortsObserver.observe(video);
-  });
-}
-
-const originalRenderShorts = renderShorts;
-
-renderShorts = function() {
-  originalRenderShorts();
-  requestAnimationFrame(observeShorts);
-};
-
-/* Event handlers */
 $("authForm").addEventListener("submit", handleAuth);
 $("uploadForm").addEventListener("submit", handleUpload);
 $("search").addEventListener("input", applySearch);
 
-/* Keep account state synchronized with Supabase. */
 db.auth.onAuthStateChange(() => {
+  // Avoid Supabase calls directly inside this callback.
   setTimeout(async () => {
     try {
       await refreshSession();
@@ -1343,16 +1423,20 @@ db.auth.onAuthStateChange(() => {
   }, 0);
 });
 
-/* Start the application. */
+/* =========================================
+   INITIALIZE ECION
+========================================= */
+
 (async function init() {
   try {
     await refreshSession();
     await loadVideos();
   } catch (error) {
-    console.error(error);
+    console.error("ECION initialization error:", error);
+
     message(
       "homeStatus",
-      "Unable to connect. Check the Supabase configuration.",
+      "Unable to connect: " + error.message,
       "error"
     );
   }
