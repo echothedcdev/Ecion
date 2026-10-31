@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09090f">
+<title>Ecion Search</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#09090f;--panel:#14141f;--text:#f6f4fa;--muted:#a4a1b0;--red:#ff174f;--purple:#9b5cff;--border:#30303e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#ff174f20,transparent 38%),radial-gradient(ellipse at 85% 5%,#9b5cff25,transparent 40%),var(--bg);color:var(--text);font:16px Inter,system-ui,Arial}
+button,input{font:inherit}button{border:0;border-radius:12px;padding:13px 18px;color:white;font-weight:800;background:linear-gradient(110deg,var(--red),var(--purple));cursor:pointer}
+header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:#111117dd}
+a{color:#c5a2ff;text-decoration:none}a:hover{text-decoration:underline}.brand{font-weight:950;letter-spacing:2px;font-size:21px}.mark{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--red),var(--purple));margin-right:8px}
+.wrap{width:min(850px,calc(100% - 30px));margin:9vh auto 40px}.hero{text-align:center;margin-bottom:26px}.hero h1{font-size:clamp(38px,8vw,64px);letter-spacing:3px;margin:0}.gradient{color:transparent;background:linear-gradient(90deg,var(--red),var(--purple));background-clip:text}.tag{color:var(--muted);margin-top:8px}
+.searchbar{display:flex;gap:9px;padding:8px;background:var(--panel);border:1px solid var(--border);border-radius:17px;box-shadow:0 14px 45px #0006}.searchbar input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:white;padding:10px;font-size:17px}.hint,.status{color:var(--muted);font-size:13px}.status{min-height:22px;margin:18px 4px}
+.result{padding:17px 18px;margin:12px 0;background:#14141f;border:1px solid var(--border);border-radius:14px}.result h2{font-size:19px;margin:7px 0}.url{font-size:12px;color:#82d6a5;overflow-wrap:anywhere}.snippet{color:#c4c0ce;line-height:1.5;margin:8px 0 0}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:14px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:30px}
+@media(max-width:520px){.searchbar{flex-wrap:wrap}.searchbar input{flex-basis:100%}.searchbar button{width:100%}.wrap{margin-top:7vh}}
+</style>
+</head>
+<body>
+<header><div class="brand"><span class="mark">E</span>ECION</div><span style="color:var(--muted)">SEARCH</span><span style="flex:1"></span><a href="../browser/">Browser</a><span> · </span><a href="../">Ecion</a></header>
+<main class="wrap">
+<section class="hero"><h1 class="gradient">ECION SEARCH</h1><div class="tag">The web, your way.</div></section>
+<form class="searchbar" id="form"><input id="q" type="search" placeholder="Search the Ecion index..." autocomplete="off" maxlength="180" aria-label="Search indexed pages"><button id="go">Search</button></form>
+<p class="hint">Independent search · Results from pages Ecion has indexed</p>
+<div id="status" class="status" role="status">Search is ready. The index is being set up.</div>
+<section id="results" aria-live="polite"></section>
+</main>
+<footer>ECION SEARCH · Ecion Co. · Independent search project</footer>
+<script>
+"use strict";
+const SUPABASE_URL="https://nihnqhfgseifvncjxxej.supabase.co";
+const SUPABASE_KEY="sb_publishable_22ZH3OKQ_C6tApeHx7vF-A_XHJeKoaE";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const form=document.getElementById("form"),q=document.getElementById("q"),status=document.getElementById("status"),results=document.getElementById("results"),go=document.getElementById("go");
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+form.addEventListener("submit",async e=>{
+ e.preventDefault();const term=q.value.trim();if(!term)return;
+ go.disabled=true;status.textContent="Searching Ecion's independent index…";results.innerHTML="";
+ try{
+  const {data,error}=await db.rpc("ecion_search",{query_text:term,result_limit:20});
+  if(error)throw error;
+  if(!data?.length){status.textContent="No matches yet. Ecion's web index is new and does not have pages indexed yet.";results.innerHTML='<div class="empty">No indexed pages found for <b>'+esc(term)+'</b>.</div>';return}
+  status.textContent=data.length+" result"+(data.length===1?"":"s")+" from the Ecion index";
+  results.innerHTML=data.map(x=>'<article class="result"><div class="url">'+esc(x.host)+'</div><h2><a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.title||x.url)+'</a></h2><p class="snippet">'+esc(x.snippet||x.description||"")+'</p></article>').join("");
+ }catch(err){status.textContent="Search error: "+err.message;results.innerHTML='<div class="empty">Could not reach the search index.</div>'}
+ finally{go.disabled=false}
+});
+const params=new URLSearchParams(location.search);if(params.get("q")){q.value=params.get("q");form.requestSubmit()}
+</script>
+</body></html>
