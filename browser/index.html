@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#09090f">
+<title>Ecion Browser</title>
+<style>
+:root{color-scheme:dark;--bg:#09090f;--panel:#14141f;--card:#1b1b28;--text:#f6f4fa;--muted:#a4a1b0;--red:#ff174f;--purple:#9b5cff;--border:#30303e}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(ellipse at 10% 0%,#ff174f18,transparent 38%),radial-gradient(ellipse at 90% 10%,#9b5cff20,transparent 38%),var(--bg);font-family:Inter,system-ui,Arial,sans-serif}
+button,input{font:inherit}button{cursor:pointer;color:white;border:0;border-radius:10px;padding:11px 15px;background:linear-gradient(110deg,var(--red),var(--purple));font-weight:750}button.secondary{background:var(--card);border:1px solid var(--border)}input{min-width:0;width:100%;padding:13px;color:var(--text);background:#20202c;border:1px solid var(--border);border-radius:10px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:13px 20px;background:#111117ed;backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:2px;font-size:21px;white-space:nowrap}.logo{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(135deg,var(--red),var(--purple))}
+main{max-width:1500px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.gradient{color:transparent;background:linear-gradient(90deg,var(--red),var(--purple));background-clip:text}h1{margin:0;font-size:clamp(27px,4vw,40px)}.muted{color:var(--muted)}.panel{margin-top:20px;padding:18px;background:var(--panel);border:1px solid var(--border);border-radius:16px}.controls{display:flex;gap:8px;align-items:center}.controls input{flex:1}.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.status{min-height:22px;font-size:13px}.frame{height:calc(100vh - 250px);min-height:360px;overflow:hidden;background:white;border:1px solid var(--border);border-radius:12px}.frame iframe{width:100%;height:100%;border:0;background:white}footer{text-align:center;padding:24px;color:var(--muted);font-size:12px}
+@media(max-width:600px){header{padding:10px}main{padding:14px}.controls{flex-wrap:wrap}.controls input{flex-basis:100%}.frame{height:65vh;min-height:300px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">E</div> ECION</div><span class="muted">BROWSER</span><span style="flex:1"></span><button class="secondary" onclick="location.href='../'">← Back to Ecion</button></header>
+<main>
+<div class="top"><div><h1><span class="gradient">Ecion</span> Browser</h1><p class="muted">A web search and browsing space inside Ecion.</p></div><button onclick="openExternal()">↗ Open in new tab</button></div>
+<section class="panel">
+<div class="controls"><button class="secondary" onclick="goBack()" aria-label="Back">←</button><button class="secondary" onclick="goHome()" aria-label="Home">⌂</button><input id="address" type="text" inputmode="url" autocomplete="off" placeholder="Enter a website or search the web..." aria-label="Website address or search"><button onclick="navigate()">Go</button></div>
+<div class="tools"><button class="secondary" onclick="searchWeb()">🔎 Ecion Search</button><button class="secondary" onclick="openExternal()">↗ Open outside Ecion</button><span class="muted">Search powered by DuckDuckGo</span></div>
+<p id="status" class="status muted" role="status">Enter a URL or search term to begin.</p>
+<div class="frame"><iframe id="view" title="Ecion Browser page" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads" src="about:blank"></iframe></div>
+<p class="muted" style="font-size:12px">Some websites block being embedded in another site. If a page does not load here, use “Open outside Ecion”. Ecion Browser is a website-based browser interface, not a full standalone browser.</p>
+</section>
+</main>
+<footer>ECION © 2026 · Ecion Browser</footer>
+<script>
+"use strict";
+const address=document.getElementById("address"),view=document.getElementById("view"),status=document.getElementById("status");
+let currentURL="https://duckduckgo.com/";
+function resolve(value){const v=String(value||"").trim();if(!v)return null;if(/^https?:\/\//i.test(v))return v;if(/^[\w.-]+:\/\//i.test(v))return null;if(/^(localhost|[\w-]+\.)+[a-z]{2,}([/:?#].*)?$/i.test(v))return "https://"+v;return "https://duckduckgo.com/?q="+encodeURIComponent(v)}
+function load(url){let parsed;try{parsed=new URL(url)}catch{status.textContent="That address is not valid.";return}if(!["http:","https:"].includes(parsed.protocol)){status.textContent="Only HTTP and HTTPS websites are supported.";return}currentURL=parsed.href;address.value=parsed.href;view.src=parsed.href;status.textContent="Loading "+parsed.hostname+"… If blocked, open it in a new tab."}
+function navigate(){const url=resolve(address.value);if(!url){status.textContent="Enter a valid website or search phrase.";return}load(url)}
+function searchWeb(){const q=address.value.trim();if(!q){status.textContent="Type something to search for.";return}load("https://duckduckgo.com/?q="+encodeURIComponent(q))}
+function openExternal(){const url=resolve(currentURL||address.value);if(!url){status.textContent="Enter a valid website first.";return}window.open(url,"_blank","noopener,noreferrer")}
+function goHome(){address.value="";view.src="about:blank";currentURL="https://duckduckgo.com/";status.textContent="Ecion Browser home. Enter a URL or search term."}
+function goBack(){try{view.contentWindow.history.back();status.textContent="Going back if the website allows it."}catch{status.textContent="This website blocks in-frame navigation. Use its back button or open it in a new tab."}}
+address.addEventListener("keydown",e=>{if(e.key==="Enter")navigate()});
+</script>
+</body>
+</html>
