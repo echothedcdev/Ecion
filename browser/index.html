@@ -21,7 +21,7 @@ main{max-width:1500px;margin:auto;padding:24px}.top{display:flex;justify-content
 <div class="top"><div><h1><span class="gradient">Ecion</span> Browser</h1><p class="muted">A web search and browsing space inside Ecion.</p></div><button onclick="openExternal()">↗ Open in new tab</button></div>
 <section class="panel">
 <div class="controls"><button class="secondary" onclick="goBack()" aria-label="Back">←</button><button class="secondary" onclick="goHome()" aria-label="Home">⌂</button><input id="address" type="text" inputmode="url" autocomplete="off" placeholder="Enter a website or search the web..." aria-label="Website address or search"><button onclick="navigate()">Go</button></div>
-<div class="tools"><button class="secondary" onclick="searchWeb()">🔎 Ecion Search</button><button class="secondary" onclick="openExternal()">↗ Open outside Ecion</button><span class="muted">Search powered by DuckDuckGo</span></div>
+<div class="tools"><button class="secondary" onclick="searchWeb()">🔎 Ecion Search</button><button class="secondary" onclick="openExternal()">↗ Open outside Ecion</button><span class="muted">Search powered by Bing</span></div>
 <p id="status" class="status muted" role="status">Enter a URL or search term to begin.</p>
 <div class="frame"><iframe id="view" title="Ecion Browser page" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads" src="about:blank"></iframe></div>
 <p class="muted" style="font-size:12px">Some websites block being embedded in another site. If a page does not load here, use “Open outside Ecion”. Ecion Browser is a website-based browser interface, not a full standalone browser.</p>
@@ -31,13 +31,13 @@ main{max-width:1500px;margin:auto;padding:24px}.top{display:flex;justify-content
 <script>
 "use strict";
 const address=document.getElementById("address"),view=document.getElementById("view"),status=document.getElementById("status");
-let currentURL="https://duckduckgo.com/";
-function resolve(value){const v=String(value||"").trim();if(!v)return null;if(/^https?:\/\//i.test(v))return v;if(/^[\w.-]+:\/\//i.test(v))return null;if(/^(localhost|[\w-]+\.)+[a-z]{2,}([/:?#].*)?$/i.test(v))return "https://"+v;return "https://duckduckgo.com/?q="+encodeURIComponent(v)}
+let currentURL="https://www.bing.com/";
+function resolve(value){const v=String(value||"").trim();if(!v)return null;if(/^https?:\/\//i.test(v))return v;if(/^[\w.-]+:\/\//i.test(v))return null;if(/^(localhost|[\w-]+\.)+[a-z]{2,}([/:?#].*)?$/i.test(v))return "https://"+v;return "https://www.bing.com/search?q="+encodeURIComponent(v)}
 function load(url){let parsed;try{parsed=new URL(url)}catch{status.textContent="That address is not valid.";return}if(!["http:","https:"].includes(parsed.protocol)){status.textContent="Only HTTP and HTTPS websites are supported.";return}currentURL=parsed.href;address.value=parsed.href;view.src=parsed.href;status.textContent="Loading "+parsed.hostname+"… If blocked, open it in a new tab."}
 function navigate(){const url=resolve(address.value);if(!url){status.textContent="Enter a valid website or search phrase.";return}load(url)}
-function searchWeb(){const q=address.value.trim();if(!q){status.textContent="Type something to search for.";return}load("https://duckduckgo.com/?q="+encodeURIComponent(q))}
+function searchWeb(){const q=address.value.trim();if(!q){status.textContent="Type something to search for.";return}load("https://www.bing.com/search?q="+encodeURIComponent(q))}
 function openExternal(){const url=resolve(currentURL||address.value);if(!url){status.textContent="Enter a valid website first.";return}window.open(url,"_blank","noopener,noreferrer")}
-function goHome(){address.value="";view.src="about:blank";currentURL="https://duckduckgo.com/";status.textContent="Ecion Browser home. Enter a URL or search term."}
+function goHome(){address.value="";view.src="about:blank";currentURL="https://www.bing.com/";status.textContent="Ecion Browser home. Enter a URL or search term."}
 function goBack(){try{view.contentWindow.history.back();status.textContent="Going back if the website allows it."}catch{status.textContent="This website blocks in-frame navigation. Use its back button or open it in a new tab."}}
 address.addEventListener("keydown",e=>{if(e.key==="Enter")navigate()});
 </script>
