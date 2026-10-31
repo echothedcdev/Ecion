@@ -1468,11 +1468,11 @@ function browserResolve(input) {
   if (!value) return null;
 
   // A phrase or host without a scheme is treated as a search unless it looks like a domain.
-  if (/^(localhost|[\\w-]+\\.)+[a-z]{2,}([/:?#].*)?$/i.test(value)) {
+  if (/^(localhost|[\w-]+\.)+[a-z]{2,}([/:?#].*)?$/i.test(value)) {
     return "https://" + value;
   }
-  if (/^https?:\\/\\//i.test(value)) return value;
-  if (/^[\\w.-]+:\\/\\//i.test(value)) return null;
+  if (/^https?:\/\//i.test(value)) return value;
+  if (/^[\w.-]+:\/\//i.test(value)) return null;
   return "https://duckduckgo.com/?q=" + encodeURIComponent(value);
 }
 
