@@ -361,6 +361,27 @@ form label {
   object-fit: contain;
 }
 
+.browser-frame-wrap {
+  width: 100%;
+  height: min(68vh, 760px);
+  min-height: 360px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.browser-frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: white;
+}
+
+@media (max-width: 650px) {
+  .browser-frame-wrap { height: 62vh; min-height: 300px; }
+}
+
 footer {
   padding: 30px;
   text-align: center;
@@ -537,6 +558,8 @@ footer {
         onclick="navigate('upload')">📤 Upload video</button>
       <button data-page="settings"
         onclick="navigate('settings')">⚙️ Settings</button>
+      <button data-page="browser"
+        onclick="navigate('browser')">🌐 Ecion Browser</button>
     </nav>
 
     <p class="muted small" style="margin:25px 8px">
@@ -674,6 +697,39 @@ footer {
           Don't upload private information or videos you don't have
           permission to share.
         </p>
+      </div>
+    </section>
+
+    <!-- Ecion Browser -->
+    <section id="browserPage" class="hidden">
+      <div class="row" style="margin-bottom:16px">
+        <div>
+          <h1><span class="gradient">Ecion</span> Browser</h1>
+          <p class="muted">Browse the web and search from one place.</p>
+        </div>
+        <button class="secondary" onclick="browserOpenExternal()">↗ Open in new tab</button>
+      </div>
+      <div class="panel">
+        <div class="row" style="gap:8px">
+          <button class="secondary" style="flex:0 0 auto" onclick="browserGoBack()" aria-label="Back">←</button>
+          <button class="secondary" style="flex:0 0 auto" onclick="browserGoHome()" aria-label="Home">⌂</button>
+          <input id="browserAddress" type="text" inputmode="url" autocomplete="off"
+            placeholder="Enter a website or search the web..." aria-label="Website address or search">
+          <button id="browserGo" onclick="browserNavigate()">Go</button>
+        </div>
+        <div class="row" style="margin-top:10px;gap:8px">
+          <button class="secondary" onclick="browserSearch()">🔎 Ecion Search</button>
+          <button class="secondary" onclick="browserOpenExternal()">↗ Open outside Ecion</button>
+          <span class="muted small" style="flex:2">Search powered by DuckDuckGo</span>
+        </div>
+        <p id="browserStatus" class="status muted" role="status">Enter a URL or search term to begin.</p>
+        <div class="browser-frame-wrap">
+          <iframe id="browserFrame" title="Ecion Browser page"
+            referrerpolicy="strict-origin-when-cross-origin"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+            src="about:blank"></iframe>
+        </div>
+        <p class="muted small">Some websites block being shown inside another site. If a page doesn't load here, use “Open outside Ecion”. Ecion is a website-based browser interface, not a full standalone browser.</p>
       </div>
     </section>
   </main>
@@ -1399,6 +1455,80 @@ async function handleUpload(event) {
     setBusy("uploadForm", false);
   }
 }
+
+/* =========================================
+   ECION BROWSER
+========================================= */
+
+let browserCurrentURL = "https://duckduckgo.com/";
+let browserLastExternalURL = browserCurrentURL;
+
+function browserResolve(input) {
+  const value = String(input || "").trim();
+  if (!value) return null;
+
+  // A phrase or host without a scheme is treated as a search unless it looks like a domain.
+  if (/^(localhost|[\\w-]+\\.)+[a-z]{2,}([/:?#].*)?$/i.test(value)) {
+    return "https://" + value;
+  }
+  if (/^https?:\\/\\//i.test(value)) return value;
+  if (/^[\\w.-]+:\\/\\//i.test(value)) return null;
+  return "https://duckduckgo.com/?q=" + encodeURIComponent(value);
+}
+
+function browserLoad(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch { return message("browserStatus", "That address is not valid.", "error"); }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return message("browserStatus", "Only normal HTTP and HTTPS web addresses are supported.", "error");
+  }
+
+  browserCurrentURL = parsed.href;
+  browserLastExternalURL = parsed.href;
+  $("browserAddress").value = parsed.href;
+  $("browserFrame").src = parsed.href;
+  message("browserStatus", "Loading " + parsed.hostname + "… If it is blocked here, open it in a new tab.");
+}
+
+function browserNavigate() {
+  const resolved = browserResolve($("browserAddress").value);
+  if (!resolved) return message("browserStatus", "Enter a valid website or search phrase.", "error");
+  browserLoad(resolved);
+}
+
+function browserSearch() {
+  const query = $("browserAddress").value.trim();
+  if (!query) return message("browserStatus", "Type something to search for.", "error");
+  browserLoad("https://duckduckgo.com/?q=" + encodeURIComponent(query));
+}
+
+function browserOpenExternal() {
+  const url = browserCurrentURL || browserResolve($("browserAddress").value);
+  if (!url) return message("browserStatus", "Enter a website first.", "error");
+  const safe = browserResolve(url);
+  if (!safe) return message("browserStatus", "Only HTTP and HTTPS links can be opened.", "error");
+  window.open(safe, "_blank", "noopener,noreferrer");
+}
+
+function browserGoHome() {
+  $("browserAddress").value = "";
+  $("browserFrame").src = "about:blank";
+  browserCurrentURL = "https://duckduckgo.com/";
+  message("browserStatus", "Ecion Browser home. Enter a URL or search term.");
+}
+
+function browserGoBack() {
+  try {
+    $("browserFrame").contentWindow.history.back();
+    message("browserStatus", "Going back if the current website allows it.");
+  } catch {
+    message("browserStatus", "This site doesn't allow in-frame navigation. Use its own back button or open it in a new tab.");
+  }
+}
+
+$("browserAddress").addEventListener("keydown", event => {
+  if (event.key === "Enter") browserNavigate();
+});
 
 /* =========================================
    EVENT LISTENERS
