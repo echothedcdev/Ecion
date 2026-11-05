@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ECH0 ER:LC CONTROL</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0911;--panel:#151020;--panel2:#21182e;--line:#3c2853;--purple:#a855f7;--text:#f5efff;--muted:#b7a7c9;--good:#86efac;--bad:#fda4af}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#211331 0,#0b0911 55%);color:var(--text);font:14px Inter,system-ui,Arial,sans-serif;min-height:100vh}
+header{padding:20px 24px;border-bottom:1px solid var(--line);background:#100b18dd;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.brand{font-size:22px;font-weight:900;letter-spacing:.5px;color:#e9d5ff}.brand span{color:#c084fc}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+.wrap{max-width:1400px;margin:auto;padding:20px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px}
+aside,.panel,.stat{background:#151020eF;border:1px solid var(--line);border-radius:14px}
+aside{padding:14px;height:max-content;position:sticky;top:100px}main{min-width:0}.panel{padding:18px;margin-bottom:16px}
+h2{margin:0 0 14px;color:#e9d5ff;font-size:20px}h3{margin:0 0 12px;color:#ddd0ed}
+button,input,select,textarea{font:inherit;border-radius:9px}button{border:0;background:linear-gradient(135deg,#9333ea,#6d28d9);color:white;padding:10px 13px;font-weight:700;cursor:pointer}button:hover{filter:brightness(1.13)}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#30213e;border:1px solid #563b70}.danger{background:#9f1239}.nav button{width:100%;display:block;text-align:left;margin:4px 0;background:transparent;color:#d7c8e7}.nav button.active,.nav button:hover{background:#30203f;color:white}.field{display:block;width:100%;background:#0e0a15;border:1px solid #4b3560;color:white;padding:11px;margin:7px 0 12px}.muted{color:var(--muted)}.tiny{font-size:12px;color:var(--muted)}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.stat{padding:16px}.stat strong{display:block;font-size:26px;color:#d8b4fe;margin-top:8px}.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#332044;color:#e9d5ff;font-size:11px}.status{padding:10px 12px;background:#21182e;border:1px solid var(--line);border-radius:9px;margin-bottom:15px;color:#e9d5ff}.good{color:var(--good)}.bad{color:var(--bad)}pre{white-space:pre-wrap;overflow:auto;max-height:480px;background:#0b0810;border:1px solid #352442;border-radius:9px;padding:13px;color:#e9d5ff}.hidden{display:none!important}.serveritem{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#21182e;padding:11px;border-radius:9px;margin:7px 0}.serveritem button{padding:7px 9px}.resourcegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.resourcegrid button{background:#30213e;border:1px solid #563b70}.resourcegrid button.selected{background:#7e22ce}.notice{border-left:3px solid #a855f7;padding:9px 12px;background:#21182e;color:#d9c8eb;border-radius:5px;margin:12px 0}
+@media(max-width:760px){.wrap{grid-template-columns:1fr;padding:12px}aside{position:static}.nav{display:grid;grid-template-columns:repeat(2,1fr)}header{position:static}.row{display:block}.row>*{width:100%;margin-bottom:7px}}
+</style>
+</head>
+<body>
+<header><div class="brand">💜 ECH0 <span>ER:LC CONTROL</span></div><div class="sub">Private server dashboard · GitHub Pages + Supabase</div></header>
+<div class="wrap">
+<aside>
+  <div class="panel" style="padding:12px"><div class="tiny">ACCOUNT</div><div id="account" style="margin:7px 0">Signed out</div><button id="signout" class="secondary hidden" style="width:100%">Sign out</button></div>
+  <div class="panel" style="padding:12px"><div class="tiny">ACTIVE SERVER</div><select id="serverSelect" class="field"><option value="">No server unlocked</option></select><button id="testServer" style="width:100%">Test connection</button></div>
+  <nav class="nav" id="nav">
+   <button class="active" data-page="dashboard">▦ Dashboard</button><button data-page="players">♙ Players</button><button data-page="staff">⬡ Staff</button><button data-page="vehicles">🚓 Vehicles</button><button data-page="calls">☎ Emergency calls</button><button data-page="queue">⌛ Queue</button><button data-page="logs">▤ Logs</button><button data-page="bans">⛔ Bans</button><button data-page="commands">⌘ Commands</button><button data-page="servers">⚙ Saved servers</button>
+  </nav>
+  <div class="tiny" style="margin:12px 4px">Keys are encrypted in your browser before they reach Supabase.</div>
+</aside>
+<main>
+<div class="status" id="status">Sign in or create an account to get started.</div>
+<section id="auth" class="panel">
+ <h2>Welcome to ECH0</h2><p class="muted">Sign in with your Supabase account. You can also create one if sign-ups are enabled.</p>
+ <label>Email<input class="field" id="email" type="email" autocomplete="username" placeholder="you@example.com"></label>
+ <label>Password<input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password"></label>
+ <div class="row"><button id="login">Sign in</button><button id="signup" class="secondary">Create account</button></div>
+</section>
+<section id="vault" class="panel hidden">
+ <h2>Unlock your API-key vault</h2><p class="muted">Your vault password encrypts saved ER:LC keys locally. It is never sent to Supabase and cannot be reset by this app.</p>
+ <input id="vaultPassword" class="field" type="password" autocomplete="current-password" placeholder="Vault password">
+ <button id="unlock">Unlock vault</button>
+</section>
+<section id="dashboard" class="page hidden">
+ <h2>Server overview</h2><div class="grid">
+ <div class="stat">Server<strong id="serverName">—</strong></div><div class="stat">Players<strong id="playersCount">—</strong></div><div class="stat">Capacity<strong id="capacity">—</strong></div><div class="stat">Status<strong id="connection">—</strong></div></div>
+ <div class="panel" style="margin-top:15px"><div class="row"><h3>Live server snapshot</h3><button id="refreshSnapshot">Refresh data</button></div><pre id="snapshot">Connect a saved server to see its data.</pre></div>
+</section>
+<section id="players" class="page panel hidden"><h2>Players</h2><button data-resource="players" class="load">Load players</button><pre id="playersData"></pre></section>
+<section id="staff" class="page panel hidden"><h2>Staff</h2><button data-resource="staff" class="load">Load staff</button><pre id="staffData"></pre></section>
+<section id="vehicles" class="page panel hidden"><h2>Spawned vehicles</h2><button data-resource="vehicles" class="load">Load vehicles</button><pre id="vehiclesData"></pre></section>
+<section id="calls" class="page panel hidden"><h2>Emergency calls</h2><button data-resource="emergencyCalls" class="load">Load calls</button><pre id="emergencyCallsData"></pre></section>
+<section id="queue" class="page panel hidden"><h2>Server queue</h2><button data-resource="queue" class="load">Load queue</button><pre id="queueData"></pre></section>
+<section id="logs" class="page panel hidden"><h2>Server logs</h2><div class="resourcegrid"><button data-resource="joinLogs" class="load">Join logs</button><button data-resource="killLogs" class="load">Kill logs</button><button data-resource="commandLogs" class="load">Command logs</button><button data-resource="modCalls" class="load">Moderator calls</button></div><pre id="logsData">Choose a log type.</pre></section>
+<section id="bans" class="page panel hidden"><h2>Ban list</h2><button data-resource="bans" class="load">Load bans</button><pre id="bansData"></pre></section>
+<section id="commands" class="page panel hidden"><h2>Remote command console</h2><div class="notice">Commands can affect players and server settings. Only run commands you are authorized to use.</div><input id="command" class="field" maxlength="250" placeholder="Enter ER:LC command"><button id="runCommand">Execute command</button><pre id="commandResult"></pre></section>
+<section id="servers" class="page panel hidden">
+ <h2>Saved ER:LC servers</h2><div class="notice">Never paste your server key into a public chat or GitHub. The key is encrypted in your browser using your vault password before storage.</div>
+ <label>Server name<input id="serverNameInput" class="field" maxlength="60" placeholder="My private server"></label>
+ <label>ER:LC server key<input id="serverKeyInput" class="field" type="password" autocomplete="off" placeholder="Paste server key"></label>
+ <button id="saveServer">Encrypt & save server</button><div id="serverList" style="margin-top:14px"></div>
+</section>
+</main></div>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.0";
+const SUPABASE_URL="https://nihnqhfgseifvncjxxej.supabase.co";
+const SUPABASE_KEY="sb_publishable_22ZH3OKQ_C6tApeHx7vF-A_XHJeKoaE";
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const FUNCTION_URL=SUPABASE_URL+"/functions/v1/erlc-control";
+let vaultKey=null,servers=[],activeId="";
+function status(t,bad=false){$("status").textContent=t;$("status").className="status "+(bad?"bad":"good")}
+function showPage(name){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(name).classList.remove("hidden");document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===name))}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+async function deriveVault(password,salt){const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:310000,hash:"SHA-256"},material,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
+function un64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
+async function encryptKey(value){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveVault($("vaultPassword").value,salt),cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(value));return{v:1,salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}}
+async function decryptKey(record){if(record?.v!==1)throw Error("Unknown encrypted-key format");const key=await deriveVault($("vaultPassword").value,un64(record.salt));const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:un64(record.iv)},key,un64(record.ciphertext));return new TextDecoder().decode(plain)}
+async function authChanged(session){const user=session?.user;$("auth").classList.toggle("hidden",!!user);$("account").textContent=user?user.email:"Signed out";$("signout").classList.toggle("hidden",!user);$("vault").classList.toggle("hidden",!user||!!vaultKey);if(user&&!vaultKey)status("Signed in. Unlock your vault to load saved servers.");if(!user){vaultKey=null;servers=[];$("serverSelect").innerHTML='<option value="">Sign in first</option>';status("Signed out.")}}
+$("login").onclick=async()=>{const{error}=await supabase.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)status(error.message,true);else status("Signed in.")}
+$("signup").onclick=async()=>{const{error}=await supabase.auth.signUp({email:$("email").value.trim(),password:$("password").value});if(error)status(error.message,true);else status("Account created. Check your email if confirmation is required.")}
+$("signout").onclick=async()=>{await supabase.auth.signOut();authChanged(null)}
+supabase.auth.onAuthStateChange((_event,session)=>authChanged(session));
+const initial=await supabase.auth.getSession();await authChanged(initial.data.session);
+$("unlock").onclick=async()=>{if($("vaultPassword").value.length<10)return status("Use a vault password of at least 10 characters.",true);vaultKey=true;$("vault").classList.add("hidden");await loadServers();status("Vault unlocked in this tab.")}
+async function loadServers(){const{data,error}=await supabase.from("erlc_saved_servers").select("id,name,encrypted_key,created_at").order("created_at",{ascending:false});if(error)throw error;servers=[];for(const row of data){try{const key=await decryptKey(row.encrypted_key);servers.push({...row,key})}catch{servers.push({...row,key:null})}}renderServers()}
+function renderServers(){$("serverList").replaceChildren();$("serverSelect").replaceChildren(new Option("Choose a server",""));for(const s of servers){$("serverSelect").add(new Option(s.name,s.id));const row=document.createElement("div");row.className="serveritem";const label=document.createElement("span");label.textContent=s.name+(s.key?"":" · locked");const del=document.createElement("button");del.className="danger";del.textContent="Delete";del.onclick=()=>deleteServer(s.id);row.append(label,del);$("serverList").append(row)}if(activeId&&servers.some(s=>s.id===activeId))$("serverSelect").value=activeId;else activeId="";$("serverSelect").onchange=()=>{activeId=$("serverSelect").value;status(activeId?"Server selected.":"Choose a server.")}}
+$("saveServer").onclick=async()=>{try{if(!vaultKey)throw Error("Unlock the vault first.");const name=$("serverNameInput").value.trim(),key=$("serverKeyInput").value.trim();if(!name||!key)throw Error("Enter a name and server key.");if(!/^[A-Za-z0-9]+-[A-Za-z0-9]+$/.test(key))throw Error("Server key format should contain two alphanumeric parts separated by a hyphen.");const encrypted_key=await encryptKey(key);const{error}=await supabase.from("erlc_saved_servers").insert({name,encrypted_key});if(error)throw error;$("serverNameInput").value="";$("serverKeyInput").value="";await loadServers();status("Server key encrypted and saved.");}catch(e){status(e.message,true)}}
+async function deleteServer(id){if(!confirm("Delete this saved server?"))return;const{error}=await supabase.from("erlc_saved_servers").delete().eq("id",id);if(error)return status(error.message,true);if(activeId===id)activeId="";await loadServers();status("Saved server deleted.")}
+async function callErlc(action,extra={}){const s=servers.find(x=>x.id===activeId);if(!s||!s.key)throw Error("Select a server and unlock the vault.");const{data:{session}}=await supabase.auth.getSession();if(!session)throw Error("Sign in again.");const response=await fetch(FUNCTION_URL,{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify({action,serverKey:s.key,...extra})});const result=await response.json();if(!response.ok)throw Error(result.error+(result.details?" · "+JSON.stringify(result.details):""));return result.data}
+$("testServer").onclick=async()=>{try{status("Testing ER:LC connection...");const d=await callErlc("test");$("serverName").textContent=d.Name||"Connected";$("playersCount").textContent=d.CurrentPlayers??"—";$("capacity").textContent=d.MaxPlayers??"—";$("connection").textContent="ONLINE";status("ER:LC connection successful.")}catch(e){$("connection").textContent="ERROR";status(e.message,true)}}
+async function snapshot(){try{status("Loading server snapshot...");const d=await callErlc("snapshot");$("serverName").textContent=d.Name||"Connected";$("playersCount").textContent=d.CurrentPlayers??"—";$("capacity").textContent=d.MaxPlayers??"—";$("connection").textContent="ONLINE";$("snapshot").textContent=JSON.stringify(d,null,2);status("Snapshot loaded.")}catch(e){status(e.message,true)}}
+$("refreshSnapshot").onclick=snapshot;
+document.querySelectorAll(".load").forEach(b=>b.onclick=async()=>{try{const r=b.dataset.resource;status("Loading "+r+"...");const d=await callErlc("resource",{resource:r});const target=["joinLogs","killLogs","commandLogs","modCalls"].includes(r)?"logsData":r+"Data";$(target).textContent=JSON.stringify(d,null,2);status(r+" loaded.")}catch(e){status(e.message,true)}});
+$("runCommand").onclick=async()=>{const command=$("command").value.trim();if(!command)return status("Enter a command.",true);if(!confirm("Send this command to your ER:LC server?\n\n"+command))return;try{status("Sending command...");const d=await callErlc("command",{command});$("commandResult").textContent=JSON.stringify(d,null,2);status("Command sent. Check the response for ER:LC's result.")}catch(e){status(e.message,true)}};
+</script>
+</body></html>
